@@ -1,0 +1,26 @@
+temp2.methods.create_token(0, temp1.fromLiteral({name: "70697261746531"}), 0).send()
+temp2.methods.add_gen(temp1.fromLiteral({attack: { type_: "number", value: "3132"}}), 0, 1, 0, 0).send()
+temp2.methods.nerf(0, 1, 0, "defense", 0, "number", "3132").send()
+temp2.methods.mutate(temp1.fromLiteral({attack: { type_: "number", value: "3233"}}), 0,1,1, 0).send()
+temp2.methods.evolve(temp1.fromLiteral({type: { type_: "string", value: "77697a617264"}}), 0,2,0, 0).send()
+
+
+const get_generations = async (genx, id) => {
+    const generations = await genx.get(id);
+    return [...generations.keys()].map(key => `${key[0]}.${key[1]}.${key[2]}` )
+}
+
+const get_generation = async (genx, id) => {
+    const generations = await genx.get(id);
+    return [...generations.keys()].reduce( (acc, key) => {
+        const v = generations.get(key);
+        acc[`${key[0]}.${key[1]}.${key[2]}`] = [...v.keys()].reduce((acc, key) => {
+            acc[key] = v.get(key);
+            return acc
+        } , {})
+        return acc;
+    }, {} )
+}
+
+const encode = (str) => Buffer.from(str).toString('hex')
+const decode = (bytes) => Buffer.from(bytes, 'hex').toString();

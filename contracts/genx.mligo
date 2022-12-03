@@ -100,10 +100,14 @@ end
 module Genx = struct
  type asset_id = nat
  type name = string
- type type_ = | String | Number | Boolean
+ type type_ = string (* String | Number | Boolean *)
  type value  = bytes
  type generation_id = nat * nat * nat // See major.minor.patch in https://semver.org/
- type generation = (name, type_ * value) map
+ type gen = {
+  type_: type_;
+  value: value
+ }
+ type generation = (name, gen) map
  type generations = (generation_id, generation) map
  type t = (asset_id, generations) big_map
 
@@ -118,11 +122,9 @@ module Genx = struct
    let genx = Big_map.update asset_id (Some generations) genx in
    genx
 
-  let nerf (genx:t) (asset_id: asset_id) (generation_id: generation_id) (name: name) (value: type_ * value) =
+  let nerf (genx:t) (asset_id: asset_id) (generation_id: generation_id) (name: name) (value: gen) =
     let generations = match Big_map.find_opt asset_id genx with
-       Some generations ->
-         let () = assert_with_error (not Map.mem generation_id  generations) Errors.generation_exist in
-         generations
+       Some generations -> generations
      | None -> failwith Errors.generations_not_exist
    in
    let generation = match Map.find_opt generation_id generations with
@@ -137,7 +139,7 @@ module Genx = struct
    genx
 
    let join_map map1 map2 = 
-     let merge = fun (origin, gen : generation * (name * (type_ * value))) : generation ->
+     let merge = fun (origin, gen : generation * (name * gen)) : generation ->
        let (name, value) = gen in
        if not Map.mem name origin 
        then Map.add name value origin 
@@ -149,7 +151,6 @@ module Genx = struct
    let mutate (genx:t) (asset_id: asset_id) (generation_id: generation_id) (changes: generation) =
     let generations = match Big_map.find_opt asset_id genx with
        Some generations ->
-         let () = assert_with_error (not Map.mem generation_id  generations) Errors.generation_exist in
          generations
      | None -> failwith Errors.generations_not_exist
    in
@@ -159,19 +160,23 @@ module Genx = struct
    in
    let generation = join_map generation changes in
    let generations = Map.remove generation_id generations in
-   let new_generation_id = (generation_id.0, generation_id.1 + 1n, generation_id.0) in
+   let new_generation_id = (generation_id.0, generation_id.1 + 1n, 0n) in
    let generations = Map.add new_generation_id generation generations in
    let genx = Big_map.update asset_id (Some generations) genx in
    genx
 
-  let evolve (genx:t) (asset_id: asset_id) (generation_id: generation_id) (generation: generation) =
+  let evolve (genx:t) (asset_id: asset_id) (generation_id: generation_id) (changes: generation) =
     let generations = match Big_map.find_opt asset_id genx with
        Some generations ->
-         let () = assert_with_error (not Map.mem generation_id  generations) Errors.generation_exist in
          generations
      | None -> failwith Errors.generations_not_exist
    in
-   let new_generation_id = (generation_id.0 + 1n, generation_id.1, 0n) in
+   let generation = match Map.find_opt generation_id generations with
+       Some generation -> generation
+     | None -> failwith Errors.generation_not_exist
+   in
+   let new_generation_id = (generation_id.0 + 1n, 0n, 0n) in
+   let generation = join_map generation changes in
    let generations = Map.add new_generation_id generation generations in
    let genx = Big_map.update asset_id (Some generations) genx in
    genx
@@ -187,6 +192,7 @@ module Storage = struct
       token_metadata : TokenMetadata.t;
       metadata       : Metadata.t;
       genx           : Genx.t;
+      counter        : nat
    }
 
    let is_owner_of (s:t) (owner : address) (token_id : token_id) : bool =
@@ -309,6 +315,7 @@ let create ({token_id;data} : create_token) (s : storage) =
    let ld = Ledger.add_token ld token_id in
    let s = Storage.set_token_metadata s md in
    let s = Storage.set_ledger s ld in
+   let s = { s with counter = s.counter + 1n } in
    ([]: operation list),s
 
 type add_gen = {
@@ -321,7 +328,7 @@ type nerf_gen = {
     token_id      : nat;
     generation_id : Genx.generation_id;
     name: string;
-    value: Genx.type_ * Genx.value;
+    value: Genx.gen;
 }
 let add_gen ({token_id; generation_id; generation;} : add_gen) (s : storage) =
     let genx = Storage.get_genx s in

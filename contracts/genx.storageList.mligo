@@ -13,4 +13,5 @@ let base: storage = {
 	    ("data", Metadata.metadata);
       ];
       genx = Big_map.empty;
+      counter = 0n;
 }
