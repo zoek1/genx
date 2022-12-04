@@ -10,6 +10,7 @@ import genx from "genx"
 import Assets, {Asset} from "./components/Assets";
 import Generations from "./components/Generations";
 import TokenEditor from "./components/TokenEditor";
+import EditorGeneration from "./components/EditorGeneration";
 
 enum BeaconConnection {
   NONE = "",
@@ -36,7 +37,7 @@ const App = () => {
   const [selectedAsset, setSelectedAsset] = useState(-1)
   const [generations, setGenerations] = useState([])
   const [editor, setEditor] = useState("")
-
+  const [generation, setGeneration] = useState({});
   const fetchGenerations = async (token_id: any) => {
     const storage = await contract.storage();
     setSelectedAsset(token_id)
@@ -64,11 +65,18 @@ const App = () => {
             setBeaconConnection={setBeaconConnection}
           />
 
-        <div style={{display: 'flex'}}>
+        <div style={{display: 'flex', justifyContent: "space-around"}}>
 
-            <Assets contract={contract} assets={assets} fetchGenerations={fetchGenerations} />
-            <Generations selectedAsset={selectedAsset} fetchGenerations={fetchGenerations} contract={contract} generations={generations} />
-            <TokenEditor contract={contract} onUpdate={fetchAssets} />
+            <Assets contract={contract} assets={assets} fetchGenerations={fetchGenerations} openEditor={() => setEditor('token')} />
+            <Generations selectedAsset={selectedAsset} fetchGenerations={fetchGenerations} contract={contract} generations={generations}
+                         onSelect={(gen: any) => {
+                           setGeneration(gen);
+                           setEditor('evolve');
+                         }} />
+          { editor === 'evolve'
+              ? <EditorGeneration contract={contract} genes={generation} />
+              : <TokenEditor contract={contract} onUpdate={fetchAssets} />
+          }
         </div>
       </div>
     );

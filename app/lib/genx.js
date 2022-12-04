@@ -98,7 +98,7 @@ export const create_token = async (contract, token_id, props) => {
         token_id: encode(token_id.toString()),
         ...encoded_properties
     });
-    const op = await contract.methods.create_token(0, token_info, token_id).send()
+    const op = await contract.methods.create_token(token_id, token_info, token_id).send()
     await op.confirmation(1)
     return op
 }

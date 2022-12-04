@@ -2,14 +2,7 @@ import {Button, Card, Form, ListGroup} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import genx from "genx"
 
-export const Generation = (props) => {
-    const {
-       onSelect,
-       selectedAsset,
-       generation,
-       genes,
-       contract,
-       fetchGenerations } = props;
+export default function EditorGeneration({genes, contract}) {
     const [g, setGenes] = useState(genes);
     const [modified, setModified] = useState(false)
 
@@ -41,16 +34,8 @@ export const Generation = (props) => {
         setGenes({...g, "": {type_: "string", value: ""}})
     }
 
-    const onUpdate = async (gene, type, value) => {
-        const version = genx.genx.version(generation);
-        const nerf = await genx.genx.nerf(contract,
-                        selectedAsset,
-                        gene, type, value,
-                        version[0], version[1], version[2])
-        await fetchGenerations(selectedAsset);
-    }
-
-    const onMutate = async () => {
+    const onEvolve = async () => {
+        /*
         const version = genx.genx.version(generation);
         const new_genes = Object.entries(g).map(([key, value]) => {
             return [key, genx.genx.gene(value.type_, value.value)];
@@ -60,10 +45,12 @@ export const Generation = (props) => {
                                         selectedAsset, genes,
                                         version[0], version[1], version[2]);
         await fetchGenerations(selectedAsset);
+
+         */
     }
 
-    return <Card style={{ width: '28rem' }} onClick={() => onSelect(g)}>
-           <Card.Header as="h5">{generation}</Card.Header>
+    return <Card style={{ width: '28rem' }}>
+           <Card.Header as="h5">Evolve Editor</Card.Header>
 
            <ListGroup variant="flush">
         {
@@ -95,26 +82,13 @@ export const Generation = (props) => {
                                 type="text"
                                 placeholder="Enter Gene Name" />
                 </Form.Group>
-                  { gene ?
-                      <Button variant="outline-primary" onClick={() => onUpdate(gene, g[gene].type_, g[gene].value)} >Update</Button> :
-                      <></>
-                  }
               </Form>
             </ListGroup.Item>
           })
         }
         </ListGroup>
         <Button variant="outline-primary" onClick={addGene}>Add Gene</Button>
-            <Button variant="outline-warning" onClick={onMutate} disabled={!modified}>Mutate</Button>
+        <Button variant="outline-success" onClick={onEvolve} disabled={!modified}>Evolve</Button>
 
     </Card>
-}
-
-export default function Generations({selectedAsset, generations, contract, fetchGenerations, onSelect}) {
-    console.log(generations)
-    return <div>
-        { Object.keys(generations).map(generation => <Generation selectedAsset={selectedAsset} key={generation} generation={generation} genes={generations[generation]} contract={contract} fetchGenerations={fetchGenerations} onSelect={onSelect}/>)}
-        <Button variant="outline-danger" onClick={() => onSelect({}) }>Evolve</Button>
-
-    </div>
 }
