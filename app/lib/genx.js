@@ -1,7 +1,6 @@
 import {MichelsonMap, TezosToolkit} from "@taquito/taquito";
 import {decode, encode} from "./encoding";
 import {BeaconEvent, defaultEventCallbacks, NetworkType} from "@airgap/beacon-dapp";
-import {useEffect} from "react";
 import {BeaconWallet} from "@taquito/beacon-wallet";
 const semver = require('semver')
 
@@ -147,7 +146,7 @@ export const evolve = async (contract, token_id, genes) => {
 }
 
 
-const setup = async (Tezos, userAddress, contractAddress=contractAddress) => {
+export const setup = async (Tezos, userAddress, contractAddress) => {
     const balance = await Tezos.tz.getBalance(userAddress);
     const contract = await Tezos.wallet.at(contractAddress);
 
@@ -194,7 +193,6 @@ export const getWallet = async (Tezos, name, setPublicToken=() => {}) => {
     const activeAccount = await wallet.client.getActiveAccount();
     if (activeAccount) {
         const userAddress = await wallet.getPKH();
-        await setup(userAddress);
         return [true, wallet, userAddress]
     }
     return [false, wallet, null];

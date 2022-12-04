@@ -11,7 +11,7 @@ export const Asset = ({asset, fetchGenerations, contract, eventKey}) => {
         if (token_info[""]?.startsWith("ipfs://")) {
             getJSON(token_info[""]).then((data) => {
                 setData({...token_info, ...data})
-            })
+            }).catch((e) => console.log(e))
         }
     }, []);
 

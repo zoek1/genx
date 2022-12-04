@@ -1,0 +1,30 @@
+{
+    "name": "@genex/demo",
+    "version": "1.0.0",
+    "description": "Demo to demostrate the use of NFT genes.",
+    "scripts": {
+        "start": "parcel serve index.html",
+        "build": "parcel build index.html",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "phaser"
+    ],
+    "author": "Miguel Gordian",
+    "license": "MIT",
+    "devDependencies": {
+        "assert": "^2.0.0",
+        "buffer": "^5.7.1",
+        "events": "^3.3.0",
+        "parcel": "^2.4.0",
+        "parcel-plugin-static-files-copy": "^2.6.0",
+        "stream-browserify": "^3.0.0",
+        "typescript": "^4.6.3"
+    },
+    "dependencies": {
+        "@zoek/genx": "^0.1.25",
+        "parcel-plugin-asset-copier": "^1.1.0",
+        "phaser": "^3.55.2"
+    },
+    "assetsPath": "assets"
+}
