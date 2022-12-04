@@ -9,6 +9,7 @@ import Transfers from "./components/Transfers";
 import genx from "genx"
 import Assets, {Asset} from "./components/Assets";
 import Generations from "./components/Generations";
+import TokenEditor from "./components/TokenEditor";
 
 enum BeaconConnection {
   NONE = "",
@@ -34,6 +35,7 @@ const App = () => {
   const [assets, setAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(-1)
   const [generations, setGenerations] = useState([])
+  const [editor, setEditor] = useState("")
 
   const fetchGenerations = async (token_id: any) => {
     const storage = await contract.storage();
@@ -42,90 +44,17 @@ const App = () => {
     setGenerations(generations);
   }
 
+  const fetchAssets = async (storage: any) => {
+    const assets = await genx.genx.getAssets(storage || await contract.storage());
+    setAssets(assets);
+  }
+
   const contractAddress: string = "KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25";
-  const generateQrCode = (): { __html: string } => {
-    const qr = qrcode(0, "L");
-    qr.addData(publicToken || "");
-    qr.make();
 
-    return { __html: qr.createImgTag(4) };
-  };
-
-  if (publicToken && (!userAddress || isNaN(userBalance))) {
+  if (userAddress && !isNaN(userBalance)) {
     return (
-      <div className="main-box">
-        <h1>Taquito React template</h1>
-        <div id="dialog">
-          <header>Try the Taquito React template!</header>
-          <div id="content">
-            <p className="text-align-center">
-              <i className="fas fa-broadcast-tower"></i>&nbsp; Connecting to
-              your wallet
-            </p>
-            <div
-              dangerouslySetInnerHTML={generateQrCode()}
-              className="text-align-center"
-            ></div>
-            <p id="public-token">
-              {copiedPublicToken ? (
-                <span id="public-token-copy__copied">
-                  <i className="far fa-thumbs-up"></i>
-                </span>
-              ) : (
-                <span
-                  id="public-token-copy"
-                  onClick={() => {
-                    if (publicToken) {
-                      navigator.clipboard.writeText(publicToken);
-                      setCopiedPublicToken(true);
-                      setTimeout(() => setCopiedPublicToken(false), 2000);
-                    }
-                  }}
-                >
-                  <i className="far fa-copy"></i>
-                </span>
-              )}
-
-              <span>
-                Public token: <span>{publicToken}</span>
-              </span>
-            </p>
-            <p className="text-align-center">
-              Status: {beaconConnection ? "Connected" : "Disconnected"}
-            </p>
-          </div>
-        </div>
-        <div id="footer">
-          <img src="built-with-taquito.png" alt="Built with Taquito" />
-        </div>
-      </div>
-    );
-  } else if (userAddress && !isNaN(userBalance)) {
-    return (
-      <div className="main-box">
-        <h1>Taquito Boilerplate</h1>
-        <div id="tabs">
-          <div
-            id="transfer"
-            className={activeTab === "transfer" ? "active" : ""}
-            onClick={() => setActiveTab("transfer")}
-          >
-            Make a transfer
-          </div>
-          <div
-            id="contract"
-            className={activeTab === "contract" ? "active" : ""}
-            onClick={() => setActiveTab("contract")}
-          >
-            Interact with a contract
-          </div>
-        </div>
-        <div id="dialog">
-          <div id="content">
-            <Assets contract={contract} assets={assets} fetchGenerations={fetchGenerations} />
-            <Generations selectedAsset={selectedAsset} fetchGenerations={fetchGenerations} contract={contract} generations={generations} />
-          </div>
-          <DisconnectButton
+      <div>
+        <DisconnectButton
             wallet={wallet}
             setPublicToken={setPublicToken}
             setUserAddress={setUserAddress}
@@ -134,9 +63,12 @@ const App = () => {
             setTezos={setTezos}
             setBeaconConnection={setBeaconConnection}
           />
-        </div>
-        <div id="footer">
-          <img src="built-with-taquito.png" alt="Built with Taquito" />
+
+        <div style={{display: 'flex'}}>
+
+            <Assets contract={contract} assets={assets} fetchGenerations={fetchGenerations} />
+            <Generations selectedAsset={selectedAsset} fetchGenerations={fetchGenerations} contract={contract} generations={generations} />
+            <TokenEditor contract={contract} onUpdate={fetchAssets} />
         </div>
       </div>
     );
@@ -184,7 +116,7 @@ const App = () => {
             contractAddress={contractAddress}
             setBeaconConnection={setBeaconConnection}
             wallet={wallet}
-
+            fetchAssets={fetchAssets}
           />
         </div>
         <div id="footer">

@@ -14,5 +14,8 @@ export const Asset = ({asset, fetchGenerations, contract}) => {
 }
 
 export default function Assets({assets, fetchGenerations, contract}) {
-    return assets.map(asset => <Asset  asset={asset} fetchGenerations={fetchGenerations} contract={contract}/>);
+    return <div>
+        {assets.map(asset => <Asset  asset={asset} fetchGenerations={fetchGenerations} contract={contract}/>)}
+        <Button variant="outline-success">Create Token</Button>
+        </div>
 }

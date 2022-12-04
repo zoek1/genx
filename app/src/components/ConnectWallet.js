@@ -21,7 +21,8 @@ const ConnectButton = ({
   setAssets,
   setBeaconConnection,
   setPublicToken,
-  wallet
+  wallet,
+  fetchAssets,
 }) => {
   const [loadingNano, setLoadingNano] = useState(false);
 
@@ -35,9 +36,8 @@ const ConnectButton = ({
     const storage = await contract.storage();
     setContract(contract);
     // setStorage(storage.toNumber());
+    await fetchAssets(storage);
 
-    const assets = await genx.genx.getAssets(storage);
-    setAssets(assets);
   };
 
   const connectWallet = async () => {

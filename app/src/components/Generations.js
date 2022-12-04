@@ -4,6 +4,7 @@ import genx from "genx"
 
 export const Generation = ({selectedAsset, generation, genes, contract, fetchGenerations}) => {
     const [g, setGenes] = useState(genes);
+    const [modified, setModified] = useState(false)
 
     useEffect(() => {
         setGenes(genes);
@@ -14,16 +15,19 @@ export const Generation = ({selectedAsset, generation, genes, contract, fetchGen
         const new_g = {...g, [new_name]: state}
         delete new_g[name];
         setGenes(new_g);
+        setModified(true);
     }
 
     const updateType = (name, type) => {
         const state = {...g[name], type_: type};
         setGenes({...g, [name]: state});
+        setModified(true);
     }
 
     const updateValue = (name, type) => {
         const state = {...g[name], value: type};
         setGenes({...g, [name]: state});
+        setModified(true);
     }
 
     const addGene = () => {
@@ -36,9 +40,21 @@ export const Generation = ({selectedAsset, generation, genes, contract, fetchGen
                         selectedAsset,
                         gene, type, value,
                         version[0], version[1], version[2])
-        console.log(nerf)
-        await fetchGenerations(selectedAsset)
+        await fetchGenerations(selectedAsset);
     }
+
+    const onMutate = async () => {
+        const version = genx.genx.version(generation);
+        const new_genes = Object.entries(g).map(([key, value]) => {
+            return [key, genx.genx.gene(value.type_, value.value)];
+        })
+        const genes = Object.fromEntries(new_genes)
+        const mutate = genx.genx.mutate(contract,
+                                        selectedAsset, genes,
+                                        version[0], version[1], version[2]);
+        await fetchGenerations(selectedAsset);
+    }
+
     return <Card style={{ width: '18rem' }}>
            <Card.Header as="h5">{generation}</Card.Header>
 
@@ -82,16 +98,16 @@ export const Generation = ({selectedAsset, generation, genes, contract, fetchGen
         }
         </ListGroup>
         <Button variant="outline-primary" onClick={addGene}>Add Gene</Button>
-        <Button variant="outline-warning">Mutate</Button>
+            <Button variant="outline-warning" onClick={onMutate} disabled={!modified}>Mutate</Button>
 
     </Card>
 }
 
 export default function Generations({selectedAsset, generations, contract, fetchGenerations}) {
     console.log(generations)
-    return <>
+    return <div>
         { Object.keys(generations).map(generation => <Generation selectedAsset={selectedAsset} key={generation} generation={generation} genes={generations[generation]} contract={contract} fetchGenerations={fetchGenerations}/>)}
         <Button variant="outline-danger">Evolve</Button>
 
-    </>
+    </div>
 }

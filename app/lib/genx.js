@@ -88,11 +88,15 @@ export const bread = async (genx, token_x, gen_x, token_y, gen_y) => {
 }
 */
 
-export const create_token = async (contract, name, token_id) => {
+export const create_token = async (contract, token_id, props) => {
     // temp2.methods.create_token(0,  temp1.fromLiteral({name: "70697261746531"}), 0).send()
+    const encoded_properties = Object.entries(props).reduce((acc, [key, value]) => {
+        acc[key] = encode(value.toString());
+        return acc;
+    }, {})
     const token_info = MichelsonMap.fromLiteral({
         token_id: encode(token_id.toString()),
-        name: encode(name)
+        ...encoded_properties
     });
     const op = await contract.methods.create_token(0, token_info, token_id).send()
     await op.confirmation(1)
