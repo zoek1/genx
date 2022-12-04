@@ -1,14 +1,10 @@
-import React, { Dispatch, SetStateAction, useState, useEffect } from "react";
-import { TezosToolkit } from "@taquito/taquito";
+import React, { useState, useEffect } from "react";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import {
   NetworkType,
   BeaconEvent,
   defaultEventCallbacks
 } from "@airgap/beacon-dapp";
-import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import { LedgerSigner } from "@taquito/ledger-signer";
-import genx from "genx";
 
 const ConnectButton = ({
   Tezos,
@@ -16,26 +12,20 @@ const ConnectButton = ({
   setWallet,
   setUserAddress,
   setUserBalance,
-  setStorage,
   contractAddress,
-  setAssets,
   setBeaconConnection,
   setPublicToken,
   wallet,
   fetchAssets,
 }) => {
-  const [loadingNano, setLoadingNano] = useState(false);
-
   const setup = async (userAddress) => {
     setUserAddress(userAddress);
-    // updates balance
     const balance = await Tezos.tz.getBalance(userAddress);
     setUserBalance(balance.toNumber());
-    // creates contract instance
+
     const contract = await Tezos.wallet.at(contractAddress);
     const storage = await contract.storage();
     setContract(contract);
-    // setStorage(storage.toNumber());
     await fetchAssets(storage);
 
   };
@@ -57,28 +47,12 @@ const ConnectButton = ({
     }
   };
 
-  const connectNano = async () => {
-    try {
-      setLoadingNano(true);
-      const transport = await TransportU2F.create();
-      const ledgerSigner = new LedgerSigner(transport, "44'/1729'/0'/0'", true);
-
-      Tezos.setSignerProvider(ledgerSigner);
-
-      //Get the public key and the public key hash from the Ledger
-      const userAddress = await Tezos.signer.publicKeyHash();
-      await setup(userAddress);
-    } catch (error) {
-      console.log("Error!", error);
-      setLoadingNano(false);
-    }
-  };
 
   useEffect(() => {
     (async () => {
       // creates a wallet instance
       const wallet = new BeaconWallet({
-        name: "Taquito React template",
+        name: "Genx - Genetics Assets Laboratory",
         preferredNetwork: NetworkType.GHOSTNET,
         disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
         eventHandlers: {
@@ -109,18 +83,6 @@ const ConnectButton = ({
         <span>
           <i className="fas fa-wallet"></i>&nbsp; Connect with wallet
         </span>
-      </button>
-      <button className="button" disabled={loadingNano} onClick={connectNano}>
-        {loadingNano ? (
-          <span>
-            <i className="fas fa-spinner fa-spin"></i>&nbsp; Loading, please
-            wait
-          </span>
-        ) : (
-          <span>
-            <i className="fab fa-usb"></i>&nbsp; Connect with Ledger Nano
-          </span>
-        )}
       </button>
     </div>
   );

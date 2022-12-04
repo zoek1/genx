@@ -1,4 +1,4 @@
-import {Button, Card, Form, ListGroup} from "react-bootstrap";
+import {Accordion, Button, Card, Form, ListGroup, Spinner} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import genx from "genx"
 
@@ -9,9 +9,12 @@ export const Generation = (props) => {
        generation,
        genes,
        contract,
-       fetchGenerations } = props;
+       fetchGenerations,
+       eventKey
+    } = props;
     const [g, setGenes] = useState(genes);
     const [modified, setModified] = useState(false)
+    const [msg, setMsg] = useState("")
 
     useEffect(() => {
         setGenes(genes);
@@ -42,15 +45,19 @@ export const Generation = (props) => {
     }
 
     const onUpdate = async (gene, type, value) => {
+        setMsg(`Updating property ${gene}`);
         const version = genx.genx.version(generation);
         const nerf = await genx.genx.nerf(contract,
                         selectedAsset,
                         gene, type, value,
                         version[0], version[1], version[2])
+        setMsg(`Updating genes`);
         await fetchGenerations(selectedAsset);
+        setMsg(``);
     }
 
     const onMutate = async () => {
+        setMsg(`Starting mutation`);
         const version = genx.genx.version(generation);
         const new_genes = Object.entries(g).map(([key, value]) => {
             return [key, genx.genx.gene(value.type_, value.value)];
@@ -59,12 +66,18 @@ export const Generation = (props) => {
         const mutate = genx.genx.mutate(contract,
                                         selectedAsset, genes,
                                         version[0], version[1], version[2]);
+        setMsg(`Mutation in progress`);
         await fetchGenerations(selectedAsset);
+        setMsg(``);
     }
 
-    return <Card style={{ width: '28rem' }} onClick={() => onSelect(g)}>
-           <Card.Header as="h5">{generation}</Card.Header>
-
+    return <Accordion.Item eventKey={eventKey} style={{ width: '28rem' }}>
+           <Accordion.Header as="h5">{!msg ? generation :
+             <div>
+                 <Spinner animation="border" variant="success" /> {msg}
+             </div>
+           }</Accordion.Header>
+           <Accordion.Body>
            <ListGroup variant="flush">
         {
           Object.keys(g).map((gene, index) =>  {
@@ -104,16 +117,22 @@ export const Generation = (props) => {
           })
         }
         </ListGroup>
-        <Button variant="outline-primary" onClick={addGene}>Add Gene</Button>
+        </Accordion.Body>
+        <div style={{display: 'flex', justifyContent: 'space-around'}}>
+            <Button variant="outline-danger"  onClick={() => onSelect(g)}>Evolve</Button>
+            <Button variant="outline-primary" onClick={addGene}>Add Gene</Button>
             <Button variant="outline-warning" onClick={onMutate} disabled={!modified}>Mutate</Button>
 
-    </Card>
+        </div>
+    </Accordion.Item>
 }
 
 export default function Generations({selectedAsset, generations, contract, fetchGenerations, onSelect}) {
     console.log(generations)
     return <div>
-        { Object.keys(generations).map(generation => <Generation selectedAsset={selectedAsset} key={generation} generation={generation} genes={generations[generation]} contract={contract} fetchGenerations={fetchGenerations} onSelect={onSelect}/>)}
+        <Accordion>
+            { Object.keys(generations).map((generation, key) => <Generation eventKey={key} selectedAsset={selectedAsset} key={generation} generation={generation} genes={generations[generation]} contract={contract} fetchGenerations={fetchGenerations} onSelect={onSelect}/>)}
+        </Accordion>
         <Button variant="outline-danger" onClick={() => onSelect({}) }>Evolve</Button>
 
     </div>

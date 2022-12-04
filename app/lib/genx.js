@@ -1,10 +1,15 @@
-import {MichelsonMap} from "@taquito/taquito";
+import {MichelsonMap, TezosToolkit} from "@taquito/taquito";
 import {decode, encode} from "./encoding";
+import {BeaconEvent, defaultEventCallbacks, NetworkType} from "@airgap/beacon-dapp";
+import {useEffect} from "react";
+import {BeaconWallet} from "@taquito/beacon-wallet";
 const semver = require('semver')
 
 export const STRING = "string";
 export const NUMBER = "number";
 export const BOOL = "bool";
+
+export const contractAddress = 'KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25'
 
 const toObject = v => [...v.keys()].reduce((acc, key) => {
         acc[key] = decode(v.get(key));
@@ -133,10 +138,66 @@ export const mutate = async (contract, token_id, genes, major, minor=0, patch=0)
 
 export const evolve = async (contract, token_id, genes) => {
     // temp2.methods.evolve(temp1.fromLiteral({type: { type_: "string", value: "77697a617264"}}), 0,2,0, 0).send()
-    const [major, minor, patch] = version(await lastVersion(contract, token_id));
+    const storage = await contract.storage();
+    const [major, minor, patch] = version(await lastVersion(storage.genx, token_id));
     const genx = MichelsonMap.fromLiteral(genes);
     const op = await contract.methods.evolve(genx, major, minor, patch, token_id).send()
     await op.confirmation(1)
     return op
 }
 
+
+const setup = async (Tezos, userAddress, contractAddress=contractAddress) => {
+    const balance = await Tezos.tz.getBalance(userAddress);
+    const contract = await Tezos.wallet.at(contractAddress);
+
+    return {
+        address: userAddress,
+        balance,
+        contract,
+    }
+  };
+
+export const connectWallet = async (wallet) => {
+    try {
+      await wallet.requestPermissions({
+        network: {
+          type: NetworkType.GHOSTNET,
+          rpcUrl: "https://ghostnet.ecadinfra.com"
+        }
+      });
+
+      return await wallet.getPKH();
+    } catch (error) {
+      console.log(error);
+    }
+    return null;
+};
+
+export const getWallet = async (Tezos, name, setPublicToken=() => {}) => {
+    const wallet = new BeaconWallet({
+        name: name,
+        preferredNetwork: NetworkType.GHOSTNET,
+        disableDefaultEvents: true,
+        eventHandlers: {
+          [BeaconEvent.PAIR_INIT]: {
+            handler: defaultEventCallbacks.PAIR_INIT
+          },
+          [BeaconEvent.PAIR_SUCCESS]: {
+            handler: data => setPublicToken(data.publicKey)
+          }
+        }
+    });
+
+    Tezos.setWalletProvider(wallet);
+
+    const activeAccount = await wallet.client.getActiveAccount();
+    if (activeAccount) {
+        const userAddress = await wallet.getPKH();
+        await setup(userAddress);
+        return [true, wallet, userAddress]
+    }
+    return [false, wallet, null];
+}
+
+export const getTezos = (url="https://ghostnet.ecadinfra.com") => new TezosToolkit(url)

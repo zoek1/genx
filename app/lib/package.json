@@ -1,8 +1,13 @@
 {
   "name": "genx",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.25",
+  "description": "Genetics Assets Laboratory",
   "main": "main.js",
+  "dependencies": {
+    "@taquito/beacon-wallet": "^14.0.0",
+    "@taquito/taquito": "^14.0.0",
+    "semver": "^7.3.8",
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

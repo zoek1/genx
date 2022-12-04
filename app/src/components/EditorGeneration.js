@@ -2,7 +2,7 @@ import {Button, Card, Form, ListGroup} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import genx from "genx"
 
-export default function EditorGeneration({genes, contract}) {
+export default function EditorGeneration({genes, contract, selectedAsset, onSave}) {
     const [g, setGenes] = useState(genes);
     const [modified, setModified] = useState(false)
 
@@ -35,18 +35,14 @@ export default function EditorGeneration({genes, contract}) {
     }
 
     const onEvolve = async () => {
-        /*
-        const version = genx.genx.version(generation);
         const new_genes = Object.entries(g).map(([key, value]) => {
             return [key, genx.genx.gene(value.type_, value.value)];
         })
         const genes = Object.fromEntries(new_genes)
-        const mutate = genx.genx.mutate(contract,
-                                        selectedAsset, genes,
-                                        version[0], version[1], version[2]);
-        await fetchGenerations(selectedAsset);
+        const op = await genx.genx.evolve(contract,
+                                        selectedAsset, genes);
 
-         */
+        await onSave();
     }
 
     return <Card style={{ width: '28rem' }}>
@@ -88,7 +84,7 @@ export default function EditorGeneration({genes, contract}) {
         }
         </ListGroup>
         <Button variant="outline-primary" onClick={addGene}>Add Gene</Button>
-        <Button variant="outline-success" onClick={onEvolve} disabled={!modified}>Evolve</Button>
+        <Button variant="outline-success" onClick={onEvolve} >Evolve</Button>
 
     </Card>
 }

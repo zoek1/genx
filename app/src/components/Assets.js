@@ -1,21 +1,36 @@
-import {Button, Card, ListGroup} from "react-bootstrap";
+import {Accordion, Button, Card, ListGroup} from "react-bootstrap";
+import ReactJson from "react-json-view";
+import {useState} from "react";
+import {getJSON} from "../utils/ipfs";
 
-export const Asset = ({asset, fetchGenerations, contract}) => {
+export const Asset = ({asset, fetchGenerations, contract, eventKey}) => {
     const {token_id, token_info} = asset;
+    const [data, setData] = useState(token_info);
 
-    return <Card style={{ width: '18rem' }} onClick={() => fetchGenerations(1)}>
-      <Card.Header as="h5">{token_id} - {token_info?.name}</Card.Header>
-      <ListGroup variant="flush">
-          {Object.keys(token_info).filter((key) => key !== 'name').map((key) =>
-              <ListGroup.Item>{key}: {token_info[key]}
-        </ListGroup.Item>)}
-      </ListGroup>
-    </Card>;
+    useState(() => {
+        if (token_info[""]?.startsWith("ipfs://")) {
+            getJSON(token_info[""]).then((data) => {
+                setData({...token_info, ...data})
+            })
+        }
+    }, []);
+
+    return <Accordion.Item eventKey={eventKey} style={{ width: '28rem' }} onClick={() => fetchGenerations(token_id)}>
+      <Accordion.Header as="h5">{token_id} {data?.name}</Accordion.Header>
+      <Accordion.Body>
+        <ReactJson
+            style={{marginTop: '55px', width: "26rem", overflowX: "auto"}}
+            src={data}
+        />
+      </Accordion.Body>
+    </Accordion.Item>;
 }
 
-export default function Assets({assets, fetchGenerations, contract}) {
+export default function Assets({assets, fetchGenerations, contract, openEditor}) {
     return <div>
-        {assets.map(asset => <Asset  asset={asset} fetchGenerations={fetchGenerations} contract={contract}/>)}
-        <Button variant="outline-success">Create Token</Button>
+        <Accordion>
+            {assets.map((asset, eventKey) => <Asset eventKey={eventKey}  asset={asset} fetchGenerations={fetchGenerations} contract={contract}/>)}
+        </Accordion>
+        <Button variant="outline-success" onClick={openEditor}>Create Token</Button>
         </div>
 }
