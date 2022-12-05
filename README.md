@@ -32,6 +32,12 @@ The Genx project provide the following components:
 3. Genx Editor, users can create NFT, Add genes, Mutate and Evolve visually.
 4. Demo Phaser Game, to demonstrate how to retrieve the last token and use their genes.
 
+## Deployed contract
+
+Address: [KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25](https://ghostnet.tzkt.io/KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25)
+
+BCD: [https://better-call.dev/ghostnet/KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25/operations]()
+
 ## Installation
 
 Install the JS library
