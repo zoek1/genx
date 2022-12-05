@@ -76,6 +76,8 @@ yarn start
 ```
 
 ## Demo
+https://www.loom.com/share/06679abb0fc141568c8435addf324b26
+
 ### Genx Editor
 ![](screenshots/login.png)
 ![](screenshots/editor.png)
