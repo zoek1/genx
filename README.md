@@ -71,4 +71,55 @@ yarn start
 ### Genx Editor
 ![](screenshots/login.png)
 ![](screenshots/editor.png)
+
 ## Backlog
+
+### Contract
+- [X] As a contract user I can create one FA2 Token
+- [X] As User I can transfer one token to another address
+- [X] As Token owner I can add one Operator to the token.
+- [X] As User I can add new Genes to one token
+- [X] As User I can Patch one specific gene and upgrade it's patch version following semver logic.
+- [X] As user I can Mutate one version and upgrade it's minor number following semver logic.
+- [X] As user I can Evolve one token and make a major breaking change following semver logic.
+- [X] As user I get the last genes from one contract view.
+- [ ] As user when I evolve one genes I keep  a reference to the parent.
+- [ ] As user I can bread based on two or more token genes using one strategy.
+- [ ] As user I can fusion two genes.
+- [ ] As user I can request a bread to one oracle using one strategy, the oracle should callback to the contract in the specified time with the new Token genes.
+- [ ] As user I can link existing NFTs and add genes.
+
+
+### Editor
+- [X] As user I can create a token using a JSON editor to provide the properties
+- [X] As user all properties are uploaded to IPFS Storage and assigned to the "" empty field using the canonical IPFS url.
+- [X] As user I can evolve genes in the editor
+- [X] As user I can Patch one field in the editor
+- [X] As user I can mutate a set of genes in the editor
+- [X] As user I can add new fields in the editor
+- [X] As user I can delete one gene and generate one evolution
+- [X] As user I get all my tokens 
+- [ ] As user I have an assets uploader
+- [ ] As user I see the token and its versions as images.
+
+### Client Library
+- [X] As developer I can create tokens
+- [X] As developer I can create new genes for a token
+- [X] As developer I connect with beacon wallet
+- [X] As developer I can edit specific gene
+- [X] As developer I can evolve a version
+- [X] As developer I can mutate one token
+- [X] As developer I get the last version of given token
+- [X] As developer I get the list of versions of given token
+- [X] As developer I get the specific version versions based on one  semver predicate
+- [X] As developer I get all versions combined into one set of genes.
+- [X] As developer I can fusion two set of genes
+- [ ] As developer I can bread two or more set of gens
+
+### Demo Game
+- [X] As developer I Fetch the last token
+- [X] As developer I create the stats based on the genes of the retrieves token
+- [X] As gamer I select the character
+- [ ] As gamer I select the weapon for the pirate
+- [ ] As gamer I see a bot as adversary
+- [ ] As gamer I can select my token and gene
