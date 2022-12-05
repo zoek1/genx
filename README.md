@@ -1,5 +1,9 @@
 # GenX
 
+
+[Website](https://genx.gordian.dev/) | [Contract](https://better-call.dev/ghostnet/KT1P2xiVEosLWqyUMyvjaRzK4NMbbwDEpX25) | [Demo Game](https://genx-game.gordian.dev/) | [Package](https://www.npmjs.com/package/@zoek/genx)
+
+
 Empower your users adding genes to NFTS. 
 Your users can mutate and evolve the assets in 
 multiple games, don't tie the characters to only 
@@ -56,6 +60,10 @@ yarn
 Setup Genx Editor
 ```
 cd app
+# Enter vim and add the token to save metadata in IPFS
+vim .env
+# Add your web3.storage token
+REACT_APP_WEB_STORAGE=<web3.storage>
 yarn
 ```
 
